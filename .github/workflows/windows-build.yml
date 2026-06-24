@@ -1,0 +1,51 @@
+name: Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    name: Build Windows exe
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Restore vcpkg cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg
+            build-win\vcpkg_installed
+          key: windows-vcpkg-${{ hashFiles('vcpkg.json') }}
+
+      - name: Prepare vcpkg
+        shell: pwsh
+        run: |
+          if (!(Test-Path "C:\vcpkg\scripts\buildsystems\vcpkg.cmake")) {
+            git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+            C:\vcpkg\bootstrap-vcpkg.bat
+          }
+
+      - name: Build
+        shell: pwsh
+        run: .\dev.ps1 build
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item build-win\Release\Robot3DRoaming.exe dist\Robot3DRoaming.exe
+          Copy-Item README.md dist\README.md
+          Compress-Archive -Path dist\* -DestinationPath Robot3DRoaming-Windows.zip -Force
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Robot3DRoaming-Windows
+          path: Robot3DRoaming-Windows.zip

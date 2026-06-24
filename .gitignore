@@ -1,0 +1,10 @@
+build/
+build-*/
+build-win/
+dist/
+.vs/
+.DS_Store
+*.user
+*.xcuserdata
+*.exe
+*.zip

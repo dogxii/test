@@ -1,0 +1,8 @@
+{
+  "name": "robot-3d-roaming",
+  "version": "1.0.0",
+  "dependencies": [
+    "glfw3",
+    "glm"
+  ]
+}
